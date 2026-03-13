@@ -15,6 +15,9 @@ const cookieOptions = {
 // check session
 router.get("/me", (req, res) => {
   const token = req.cookies?.admin_token;
+  
+  console.log("Checking session, cookies received:", req.cookies);
+  console.log("Token found:", !!token);
 
   if (!token) {
     return res.json({ isAdmin: false });
@@ -22,8 +25,10 @@ router.get("/me", (req, res) => {
 
   try {
     jwt.verify(token, process.env.JWT_SECRET);
+    console.log("✅ Token verified");
     return res.json({ isAdmin: true });
-  } catch {
+  } catch (err) {
+    console.log("❌ Token verification failed:", err.message);
     return res.json({ isAdmin: false });
   }
 });
@@ -31,6 +36,8 @@ router.get("/me", (req, res) => {
 // login
 router.post("/login", (req, res) => {
   const { code } = req.body || {};
+  
+  console.log("Login attempt, origin:", req.headers.origin);
 
   if (!code) {
     return res.status(400).json({ message: "Missing code" });
@@ -48,11 +55,13 @@ router.post("/login", (req, res) => {
     expiresIn: "7d",
   });
 
+  console.log("Cookie options:", cookieOptions);
   res.cookie("admin_token", token, cookieOptions);
   
-  // Log for debugging
-  console.log("Login successful, cookie set with options:", cookieOptions);
-
+  // Ensure credentials header is set
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  
+  console.log("✅ Login successful, token set");
   return res.json({ ok: true });
 });
 

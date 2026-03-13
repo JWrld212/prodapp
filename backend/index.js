@@ -13,21 +13,34 @@ dotenv.config();
 
 const app = express();
 
+// Logging middleware
 app.use((req, res, next) => {
-  console.log("REQ:", req.method, req.path, "ORIGIN:", req.headers.origin);
+  console.log("REQ:", req.method, req.path, "ORIGIN:", req.headers.origin, "COOKIES:", req.headers.cookie);
   next();
 });
 
+// CORS configuration with explicit credentials
 const corsOptions = {
-  origin: true, // reflect the request origin
+  origin: (origin, callback) => {
+    // Allow any origin (or you can whitelist specific ones)
+    console.log("CORS checking origin:", origin);
+    callback(null, origin || "*");
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  exposedHeaders: ["Set-Cookie"],
+  maxAge: 86400, // 24 hours
 };
 
 app.use(cors(corsOptions));
 
-app.use(helmet());
+// Helmet should not interfere with CORS
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
