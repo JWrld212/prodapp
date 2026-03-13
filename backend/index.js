@@ -22,15 +22,16 @@ app.use((req, res, next) => {
 // CORS configuration with explicit credentials
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow any origin (or you can whitelist specific ones)
+    // Allow the request origin (important for credentials)
     console.log("CORS checking origin:", origin);
-    callback(null, origin || "*");
+    // Always allow the origin when credentials are included
+    callback(null, origin);
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   exposedHeaders: ["Set-Cookie"],
-  maxAge: 86400, // 24 hours
+  maxAge: 86400,
 };
 
 app.use(cors(corsOptions));
