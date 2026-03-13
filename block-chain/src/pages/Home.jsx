@@ -142,7 +142,7 @@ function Header({ navItems, lang, setLang, theme, setTheme, openConnect }) {
       <div className="mx-auto flex h-[60px] w-full fixed  bg-primary max-w-[1200px] items-center justify-between px-4 sm:px-6  dark:bg-darkprimary">
         {/* Logo */}
         <div className="font-montserrat text-[1.6rem] font-bold whitespace-nowrap">
-          <span className="mr-2">⬢</span>Pro dApp
+          <span className="mr-2">⬢</span>chain assist
         </div>
 
         {/* Desktop nav */}
