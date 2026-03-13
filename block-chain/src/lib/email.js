@@ -2,12 +2,15 @@ export async function sendSubmissionEmail(data) {
   try {
     console.log("Sending email with:", data);
 
-    // Example API call (you can connect to backend later)
-    await fetch("http://localhost:5000/api/send-email", {
+    // Use environment variable for API URL (set in .env)
+    const apiUrl = import.meta.env.VITE_API_URL;
+    
+    await fetch(`${apiUrl}/api/submissions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify(data),
     });
 
