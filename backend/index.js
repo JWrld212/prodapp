@@ -13,31 +13,21 @@ dotenv.config();
 
 const app = express();
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://chain-assist.com",
-  "https://www.chain-assist.com",
-  process.env.CLIENT_ORIGIN,
-].filter(Boolean);
+app.use((req, res, next) => {
+  console.log("REQ:", req.method, req.path, "ORIGIN:", req.headers.origin);
+  next();
+});
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error(`Not allowed by CORS: ${origin}`));
-  },
+  origin: true, // reflect the request origin
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-app.use(helmet());
-
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
+app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 
@@ -48,7 +38,6 @@ app.use(
   })
 );
 
-// Root route
 app.get("/", (req, res) => {
   res.json({
     message: "✅ API is running",
@@ -63,20 +52,13 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/submissions", submissionRoutes);
 
-// 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// Error handler
 app.use((err, req, res, next) => {
-  console.error("Error:", err.message || err);
-
-  if (err.message && err.message.includes("CORS")) {
-    return res.status(403).json({ message: err.message });
-  }
-
-  res.status(500).json({ message: "Internal server error" });
+  console.error("SERVER ERROR:", err);
+  res.status(500).json({ message: err.message || "Internal server error" });
 });
 
 const port = process.env.PORT || 5000;
