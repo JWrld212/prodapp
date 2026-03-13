@@ -49,6 +49,9 @@ router.post("/login", (req, res) => {
   });
 
   res.cookie("admin_token", token, cookieOptions);
+  
+  // Log for debugging
+  console.log("Login successful, cookie set with options:", cookieOptions);
 
   return res.json({ ok: true });
 });

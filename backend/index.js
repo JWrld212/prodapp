@@ -22,10 +22,13 @@ const corsOptions = {
   origin: true, // reflect the request origin
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOptions));
-app.options(/.*/, cors(corsOptions));
+
+// Handle preflight for all routes
+app.options("*", cors(corsOptions));
 
 app.use(helmet());
 app.use(express.json());
