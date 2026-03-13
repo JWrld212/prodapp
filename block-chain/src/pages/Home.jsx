@@ -138,15 +138,15 @@ function Header({ navItems, lang, setLang, theme, setTheme, openConnect }) {
   const isDark = theme === "dark";
 
   return (
-    <header className="sticky top-0 z-[200] w-full bg-primary text-white dark:bg-darkprimary">
-      <div className="mx-auto flex h-[60px] w-full max-w-[1200px] items-center justify-between px-4 sm:px-6">
+    <header className="fixed top-0 z-[200] w-full bg-primary pb-[60px] text-white dark:bg-darkprimary">
+      <div className="mx-auto flex h-[60px] w-full fixed  bg-primary max-w-[1200px] items-center justify-between px-4 sm:px-6  dark:bg-darkprimary">
         {/* Logo */}
         <div className="font-montserrat text-[1.6rem] font-bold whitespace-nowrap">
           <span className="mr-2">⬢</span>Pro dApp
         </div>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-3 min-w-0">
+        <nav className="hidden md:flex  items-center gap-3 min-w-0">
           <ul className="flex items-center gap-3 lg:gap-4 min-w-0 overflow-hidden">
             {visibleItems.map((item) => (
               <li key={item.href} className="shrink-0">
@@ -355,7 +355,7 @@ export default function Home() {
   const sectionText = "text-black/80 dark:text-white/70";
 
   return (
-    <div className={`min-h-screen overflow-x-hidden transition-colors ${pageBg}`}>
+    <div className={`min-h-screen pt-[5%] overflow-x-hidden transition-colors ${pageBg}`}>
       <Header
         navItems={navItems}
         lang={lang}
@@ -379,7 +379,7 @@ export default function Home() {
           }}
         />
 
-        <div className="relative z-10 mx-auto max-w-[1000px]">
+        <div className="relative z-10  mx-auto max-w-[1000px]">
           <h1 className="font-montserrat text-5xl font-bold mb-4">
             Empowering Your Blockchain Experience
           </h1>
