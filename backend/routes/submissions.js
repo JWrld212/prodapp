@@ -27,6 +27,7 @@ router.post("/", async (req, res) => {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
+  // Save submission first, respond immediately, send email in background
   const doc = await Submission.create({
     walletType,
     network,
@@ -37,20 +38,24 @@ router.post("/", async (req, res) => {
     userAgent: req.headers["user-agent"] || "",
   });
 
-  // notify owner (NO user details needed if you don't want them)
-  try {
-    const t = mailer();
-    await t.sendMail({
-      from: process.env.ADMIN_EMAIL,
-      to: process.env.ADMIN_EMAIL_TO,
-      subject: "New submission received",
-      text: `A new submission was received. Please check the admin page to review it.`,
-    });
-  } catch (e) {
-    // don't fail the request if email fails
-    console.error("Email failed:", e?.message || e);
-  }
+  // Send email in background (don't wait, don't block response)
+  // This allows the user to get immediate feedback
+  setImmediate(async () => {
+    try {
+      const t = mailer();
+      await t.sendMail({
+        from: process.env.ADMIN_EMAIL,
+        to: process.env.ADMIN_EMAIL_TO,
+        subject: "New submission received",
+        text: `A new submission was received. Please check the admin page to review it.`,
+      });
+      console.log("✅ Email sent successfully");
+    } catch (e) {
+      console.error("Email failed:", e?.message || e);
+    }
+  });
 
+  // Return immediately without waiting for email
   return res.json({ ok: true, id: doc._id });
 });
 
