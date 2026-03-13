@@ -13,32 +13,33 @@ dotenv.config();
 
 const app = express();
 
-app.use(helmet());
-app.use(express.json());
-app.use(cookieParser());
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://chain-assist.com",
+  "https://www.chain-assist.com",
+  process.env.CLIENT_ORIGIN,
+].filter(Boolean);
 
-// CORS configuration for credentials (cookies)
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow localhost:5173 for development
-    const allowedOrigins = [
-      "http://localhost:5173",
-      "http://localhost:3000",
-      process.env.CLIENT_ORIGIN,
-    ].filter(Boolean);
-    
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
+      return callback(null, true);
     }
+    return callback(new Error(`Not allowed by CORS: ${origin}`));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
+app.use(helmet());
+
 app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
+app.use(express.json());
+app.use(cookieParser());
 
 app.use(
   rateLimit({
@@ -47,12 +48,17 @@ app.use(
   })
 );
 
-// Root route - verify API is running
+// Root route
 app.get("/", (req, res) => {
-  res.json({ message: "✅ API is running", timestamp: new Date().toISOString() });
+  res.json({
+    message: "✅ API is running",
+    timestamp: new Date().toISOString(),
+  });
 });
 
-app.get("/health", (req, res) => res.json({ ok: true }));
+app.get("/health", (req, res) => {
+  res.json({ ok: true });
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/submissions", submissionRoutes);
@@ -64,7 +70,12 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error("Error:", err);
+  console.error("Error:", err.message || err);
+
+  if (err.message && err.message.includes("CORS")) {
+    return res.status(403).json({ message: err.message });
+  }
+
   res.status(500).json({ message: "Internal server error" });
 });
 

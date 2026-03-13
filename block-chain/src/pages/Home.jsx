@@ -243,7 +243,7 @@ function Header({ navItems, lang, setLang, theme, setTheme, openConnect }) {
       {/* Mobile slide menu */}
       <div
         className={[
-          "md:hidden fixed top-[60px] right-0 h-[calc(100vh-60px)] w-[250px] bg-primary dark:bg-darkprimary p-4 transition-transform",
+          "md:hidden fixed top-[60px] right-0 max-h-[calc(100vh-60px)] w-[250px] bg-primary dark:bg-darkprimary p-4 transition-transform overflow-y-auto",
           menuOpen ? "translate-x-0" : "translate-x-full",
         ].join(" ")}
       >
