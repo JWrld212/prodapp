@@ -3,15 +3,18 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-const isProduction = process.env.NODE_ENV === "production";
-
-const cookieOptions = {
-  httpOnly: true,
-  secure: isProduction,
-  // Use 'none' for cross-device testing in development, 'none' is required for production cross-origin
-  sameSite: "none", 
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-};
+// Function to get cookie options based on request
+function getCookieOptions(req) {
+  const isHttps = req.protocol === "https" || req.secure || req.headers["x-forwarded-proto"] === "https";
+  
+  return {
+    httpOnly: true,
+    secure: isHttps, // Use HTTPS in production, HTTP in local dev
+    // Use 'none' for HTTPS (production), 'lax' for HTTP (local dev)
+    sameSite: isHttps ? "none" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  };
+}
 
 // check session
 router.get("/me", (req, res) => {
@@ -56,6 +59,7 @@ router.post("/login", (req, res) => {
     expiresIn: "7d",
   });
 
+  const cookieOptions = getCookieOptions(req);
   console.log("Cookie options:", cookieOptions);
   res.cookie("admin_token", token, cookieOptions);
   
@@ -68,11 +72,8 @@ router.post("/login", (req, res) => {
 
 // logout
 router.post("/logout", (req, res) => {
-  res.clearCookie("admin_token", {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-  });
+  const cookieOptions = getCookieOptions(req);
+  res.clearCookie("admin_token", cookieOptions);
 
   return res.json({ ok: true });
 });
