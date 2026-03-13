@@ -8,7 +8,8 @@ const isProduction = process.env.NODE_ENV === "production";
 const cookieOptions = {
   httpOnly: true,
   secure: isProduction,
-  sameSite: isProduction ? "none" : "lax",
+  // Use 'none' for cross-device testing in development, 'none' is required for production cross-origin
+  sameSite: "none", 
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
