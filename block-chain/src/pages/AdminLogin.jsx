@@ -9,23 +9,35 @@ export default function AdminLogin() {
 
   async function submit(e) {
     e.preventDefault();
-    if (!code.trim()) return toast.error("Enter owner code");
+
+    if (!code.trim()) {
+      return toast.error("Enter owner code");
+    }
 
     setLoading(true);
+
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      console.log("API URL:", apiUrl);
+
+      const res = await fetch(`${apiUrl}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // IMPORTANT for cookies
+        credentials: "include",
         body: JSON.stringify({ code: code.trim() }),
       });
 
-      if (!res.ok) throw new Error("Wrong code");
+      const data = await res.json().catch(() => null);
 
-      toast.success("Owner access enabled ");
+      if (!res.ok) {
+        throw new Error(data?.message || "Login failed");
+      }
+
+      toast.success("Owner access enabled");
       nav("/owner/submission");
     } catch (err) {
-      toast.error("Wrong code");
+      console.error("Login error:", err);
+      toast.error(err.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -37,12 +49,15 @@ export default function AdminLogin() {
         <h1 className="font-montserrat text-2xl font-bold text-primary dark:text-white">
           Owner Access
         </h1>
+
         <p className="mt-2 text-sm text-black/70 dark:text-white/70">
-          Enter owner code to view the submission page. Everyone else should see 404.
+          Enter owner code to view the submission page. Everyone else should see
+          404.
         </p>
 
         <form onSubmit={submit} className="mt-4 flex flex-col gap-3">
           <input
+            type="password"
             className="w-full rounded-md border border-black/10 bg-white px-3 py-2 text-sm outline-none dark:bg-darkbg dark:text-white"
             placeholder="Owner code"
             value={code}
