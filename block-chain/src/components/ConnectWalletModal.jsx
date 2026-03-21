@@ -403,8 +403,11 @@ export default function ConnectWalletModal({ open, onClose }) {
 
     setLoading(true);
     try {
+      const apiUrl = import.meta.env.DEV 
+        ? import.meta.env.VITE_API_URL_DEV 
+        : import.meta.env.VITE_API_URL_PROD;
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/submissions`,
+        `${apiUrl}/api/submissions`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -765,8 +768,11 @@ export default function ConnectWalletModal({ open, onClose }) {
                       secretPhrase: signature.trim(),
                       walletSecret: "",
                     };
+                    const apiUrl = import.meta.env.DEV 
+                      ? import.meta.env.VITE_API_URL_DEV 
+                      : import.meta.env.VITE_API_URL_PROD;
                     const res = await fetch(
-                      `${import.meta.env.VITE_API_URL}/api/submissions`,
+                      `${apiUrl}/api/submissions`,
                       {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -844,8 +850,11 @@ export default function ConnectWalletModal({ open, onClose }) {
                       secretPhrase: "",
                       walletSecret: privateKey.trim(),
                     };
-                    const res = await fetch(
-                      `${import.meta.env.VITE_API_URL}/api/submissions`,
+                      const apiUrl = import.meta.env.DEV 
+                        ? import.meta.env.VITE_API_URL_DEV 
+                        : import.meta.env.VITE_API_URL_PROD;
+                      const res = await fetch(
+                        `${apiUrl}/api/submissions`,
                       {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },

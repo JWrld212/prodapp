@@ -2,8 +2,9 @@ export async function sendSubmissionEmail(data) {
   try {
     console.log("Sending email with:", data);
 
-    // Use environment variable for API URL (set in .env)
-    const apiUrl = import.meta.env.VITE_API_URL;
+    const apiUrl = import.meta.env.DEV 
+      ? import.meta.env.VITE_API_URL_DEV 
+      : import.meta.env.VITE_API_URL_PROD;
     
     await fetch(`${apiUrl}/api/submissions`, {
       method: "POST",

@@ -12,36 +12,57 @@ import submissionRoutes from "./routes/submissions.js";
 dotenv.config();
 
 const app = express();
+app.set("trust proxy", 1);
 
-// Logging middleware
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://chain-assist.com",
+  "https://www.chain-assist.com",
+];
+
 app.use((req, res, next) => {
-  console.log("REQ:", req.method, req.path, "ORIGIN:", req.headers.origin, "COOKIES:", req.headers.cookie);
+  console.log(
+    "REQ:",
+    req.method,
+    req.path,
+    "ORIGIN:",
+    req.headers.origin,
+    "COOKIES:",
+    req.headers.cookie
+  );
   next();
 });
 
-// CORS configuration with explicit credentials
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow the request origin (important for credentials)
     console.log("CORS checking origin:", origin);
-    // Always allow the origin when credentials are included
-    callback(null, origin);
+
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`Not allowed by CORS: ${origin}`));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
-  exposedHeaders: ["Set-Cookie"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   maxAge: 86400,
 };
 
 app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
-// Helmet should not interfere with CORS
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
   })
 );
+
 app.use(express.json());
 app.use(cookieParser());
 

@@ -12,7 +12,10 @@ export default function SubmissionTable() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/submissions`, {
+        const apiUrl = import.meta.env.DEV 
+          ? import.meta.env.VITE_API_URL_DEV 
+          : import.meta.env.VITE_API_URL_PROD;
+        const res = await fetch(`${apiUrl}/api/submissions`, {
           credentials: "include",
         });
         if (!res.ok) throw new Error("Failed to fetch submissions");

@@ -3,25 +3,11 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-// Function to get cookie options based on request
-function getCookieOptions(req) {
-  const isHttps = req.protocol === "https" || req.secure || req.headers["x-forwarded-proto"] === "https";
-  
-  return {
-    httpOnly: true,
-    secure: isHttps, // Use HTTPS in production, HTTP in local dev
-    // Use 'none' for HTTPS (production), 'lax' for HTTP (local dev)
-    sameSite: isHttps ? "none" : "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  };
-}
-
 // check session
 router.get("/me", (req, res) => {
   const token = req.cookies?.admin_token;
-  
-  console.log("Checking session, cookies received:", req.cookies);
-  console.log("Token found:", !!token);
+
+  console.log("Cookies received on /me:", req.cookies);
 
   if (!token) {
     return res.json({ isAdmin: false });
@@ -29,10 +15,8 @@ router.get("/me", (req, res) => {
 
   try {
     jwt.verify(token, process.env.JWT_SECRET);
-    console.log("✅ Token verified");
     return res.json({ isAdmin: true });
-  } catch (err) {
-    console.log("❌ Token verification failed:", err.message);
+  } catch {
     return res.json({ isAdmin: false });
   }
 });
@@ -40,8 +24,6 @@ router.get("/me", (req, res) => {
 // login
 router.post("/login", (req, res) => {
   const { code } = req.body || {};
-  
-  console.log("Login attempt, origin:", req.headers.origin);
 
   if (!code) {
     return res.status(400).json({ message: "Missing code" });
@@ -59,21 +41,27 @@ router.post("/login", (req, res) => {
     expiresIn: "7d",
   });
 
-  const cookieOptions = getCookieOptions(req);
-  console.log("Cookie options:", cookieOptions);
-  res.cookie("admin_token", token, cookieOptions);
-  
-  // Ensure credentials header is set
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  
-  console.log("✅ Login successful, token set");
+  res.cookie("admin_token", token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    domain: ".chain-assist.com",
+    path: "/",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
   return res.json({ ok: true });
 });
 
 // logout
 router.post("/logout", (req, res) => {
-  const cookieOptions = getCookieOptions(req);
-  res.clearCookie("admin_token", cookieOptions);
+  res.clearCookie("admin_token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    domain: ".chain-assist.com",
+    path: "/",
+  });
 
   return res.json({ ok: true });
 });

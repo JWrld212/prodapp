@@ -14,7 +14,10 @@ function AdminOnly({ children }) {
   useEffect(() => {
     async function check() {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
+        const apiUrl = import.meta.env.DEV 
+          ? import.meta.env.VITE_API_URL_DEV 
+          : import.meta.env.VITE_API_URL_PROD;
+        const res = await fetch(`${apiUrl}/api/auth/me`, {
           credentials: "include",
         });
 

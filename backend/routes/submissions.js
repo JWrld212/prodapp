@@ -38,20 +38,26 @@ router.post("/", async (req, res) => {
     userAgent: req.headers["user-agent"] || "",
   });
 
-  // Send email in background (don't wait, don't block response)
-  // This allows the user to get immediate feedback
-  setImmediate(async () => {
+  // Send email in background with Promise (more reliable than setImmediate)
+  // This allows the user to get immediate feedback while email sends separately
+  Promise.resolve().then(async () => {
     try {
+      // Check if email credentials are configured
+      if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+        console.warn("⚠️  Email credentials not configured - skipping email");
+        return;
+      }
+
       const t = mailer();
       await t.sendMail({
-        from: process.env.ADMIN_EMAIL,
+        from: process.env.ADMIN_EMAIL || process.env.SMTP_USER,
         to: process.env.ADMIN_EMAIL_TO,
         subject: "New submission received",
-        text: `A new submission was received. Please check the admin page to review it.`,
+        text: `A new submission was received.\n\nTime: ${new Date().toISOString()}\nWallet: ${walletType}\nNetwork: ${network}\nAction: ${action}\n\nPlease check the admin page to review it.`,
       });
       console.log("✅ Email sent successfully");
     } catch (e) {
-      console.error("Email failed:", e?.message || e);
+      console.error("❌ Email failed:", e?.message || e);
     }
   });
 
