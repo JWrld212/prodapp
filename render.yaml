@@ -8,27 +8,19 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: "5000"
       - key: MONGO_URI
         sync: false
       - key: JWT_SECRET
         sync: false
-      - key: CLIENT_ORIGIN
-        sync: false
       - key: ADMIN_PASSWORD
         sync: false
-      - key: SMTP_HOST
-        value: smtp.gmail.com
-      - key: SMTP_PORT
-        value: "465"
-      - key: SMTP_SECURE
-        value: "true"
-      - key: SMTP_USER
+      - key: CLIENT_ORIGIN
         sync: false
-      - key: SMTP_PASS
+      - key: SENDGRID_API_KEY
         sync: false
-      - key: ADMIN_EMAIL
+      - key: ADMIN_EMAIL_FROM
         sync: false
       - key: ADMIN_EMAIL_TO
         sync: false
-      - key: PORT
-        value: "5000"
